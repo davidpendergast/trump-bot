@@ -28,6 +28,10 @@ public class FrequencyMap {
             }
         }
         
+        public boolean deleteFollower(String word) {
+            return followedByCount.remove(word) != null;
+        }
+        
         public List<String> getFollowers() {
             List<String> res = new ArrayList<String>(followedByCount.keySet());
             res.sort((s1, s2) -> followedByCount.get(s1) - followedByCount.get(s2));
@@ -97,6 +101,12 @@ public class FrequencyMap {
         frequencyData.get(first).addFollower(next);
     }
     
+    private void removeFollower(String first, String next) {
+        if (frequencyData.containsKey(first)) {
+            frequencyData.get(first).deleteFollower(next);
+        }
+    }
+    
     public void load(List<String> phrases) {
         Logger.log("Starting frequency analysis on " + phrases.size()
                 + " tweets...", getClass().getName());
@@ -112,12 +122,21 @@ public class FrequencyMap {
                 addFollower(words.get(i-1), words.get(i));
             }
         }
+        cleanUpTerminals();
         Logger.log("Unique words:\t" + frequencyData.keySet().size(), 
                 getClass().getName());
         Logger.log("Most common:\t" + getSortedWords().subList(0, 25), 
                 getClass().getName());
        
         
+    }
+    
+    private void cleanUpTerminals() {
+        for (String nonTerm : WordLists.NON_TERMINAL_WORDS) {
+            for (String terminal : WordLists.TERMINAL_PUNCTUATION) {
+                removeFollower(nonTerm, terminal);
+            }
+        }
     }
     
     private List<String> split(String phrase) {

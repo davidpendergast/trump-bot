@@ -7,7 +7,7 @@ import java.util.Set;
 public class WordLists {
     
     public static final Set<String> GARBAGE = new HashSet<String>();
-    public static final Set<String> BASIC = new HashSet<String>();
+    public static final Set<String> NON_TERMINAL_WORDS = new HashSet<String>();
     public static final List<String> TERMINAL_PUNCTUATION = new ArrayList<String>();
     public static final List<String> MIDSENTENCE_PUNCTUATION = new ArrayList<String>();
     public static final List<String> ALL_PUNCTUATION = new ArrayList<String>();
@@ -17,14 +17,8 @@ public class WordLists {
         String[] garbage = {"000", "&amp", "http", "https", "//t.co/", "\"", ")", "("};
         Collections.addAll(GARBAGE, garbage);
         
-        String[] basic = {"the", "to", "a", "is", "and", "of", "in", "i", "on", 
-                "for", "be", "will", "you", "at", "that", "are", "with", "have",
-                "by", "it", "not", "was", "has", "my", "our", "your", "he", 
-                "all", "from", "his", "just", "as", "this", "we", "about", 
-                "who", "should", "they", "me", "but", "so", "people", "out", 
-                "very", "do", "get", "can", "an", "would", "like", "more", 
-                "what"};
-        Collections.addAll(BASIC, basic);
+        String[] nonTerminals = {",", "the", "a", "and", "in", "on", "my", "our"};
+        Collections.addAll(NON_TERMINAL_WORDS, nonTerminals);
         
         String[] terminalPunctuation = {".", "!", "?"};
         Collections.addAll(TERMINAL_PUNCTUATION, terminalPunctuation);
