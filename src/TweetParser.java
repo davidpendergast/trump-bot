@@ -90,8 +90,6 @@ public class TweetParser {
             tweet = tweet.replaceAll("\"\"", QUOTE);
             tweet = tweet.replaceAll(",", COMMA);
             csvEntry = csvEntry.substring(0, start) + tweet + csvEntry.substring(end+1);
-//            System.out.println(tweet);
-//            System.out.println(csvEntry + "\n");
         }
         
         String[] result = csvEntry.split(",");
@@ -100,7 +98,6 @@ public class TweetParser {
             result[i] = result[i].replaceAll(QUOTE, "\"");
         }
         
-        //System.out.println(Arrays.toString(result));
         return result;
     }
     
@@ -118,6 +115,11 @@ public class TweetParser {
         } else if ("Twitter Web Client".equals(source) && !allowWebClient) {
             return false;
         } else if ("Twitter for Android".equals(source) && !allowAndroid) {
+            return false;
+        }
+        
+        if (!lineData[TWEET_TEXT_IDX].contains(" ")) {
+            // sometimes tweets will just be a single @ mention of someone
             return false;
         }
         
