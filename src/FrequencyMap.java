@@ -7,13 +7,15 @@ import java.util.Map;
 import java.util.Set;
 
 public class FrequencyMap {
-    Map<String, WordInfo> frequencyData;
     public static final String START = "~!START!~";
+    
+    Map<String, WordInfo> frequencyData;
     
     private static class WordInfo {
         public String word;
         public int frequency = 0;
         public Map<String,Integer> followedByCount = new HashMap<String,Integer>();
+        public Set<String> leaders = new HashSet<String>();
         
         public WordInfo(String word) {
             this.word = word;
@@ -38,14 +40,40 @@ public class FrequencyMap {
             return res;
         }
         
+        public List<String> getLeaders() {
+            return new ArrayList<String>(leaders);
+        }
+        
+        public boolean deleteLeader(String word) {
+            return leaders.remove(word);
+        }
+        
+        public void addLeader(String word) {
+            leaders.add(word);
+        }
+        
         public String toString() {
             StringBuilder sb = new StringBuilder();
-            sb.append("("+word+", "+frequency+") : [");
+            sb.append("("+word+", "+frequency+") : followers=[");
+            int index = 0;
             for (String key : followedByCount.keySet()) {
                 int count = followedByCount.get(key);
                 sb.append("(" + key + "->" + count + ")");
+                index++;
+                if (index != followedByCount.size()) {
+                    sb.append(", ");
+                }
+                    
             }
-            
+            sb.append("], leaders=[");
+            index = 0;
+            for (String leader : leaders) {
+                sb.append(leader);
+                index++;
+                if (index != leaders.size()) {
+                    sb.append(", ");
+                }
+            }
             sb.append("]");
             return sb.toString();
             
@@ -99,11 +127,15 @@ public class FrequencyMap {
         addWord(first, 0);
         addWord(next, 0);
         frequencyData.get(first).addFollower(next);
+        frequencyData.get(next).addLeader(first);
     }
     
     private void removeFollower(String first, String next) {
         if (frequencyData.containsKey(first)) {
             frequencyData.get(first).deleteFollower(next);
+        }
+        if (frequencyData.containsKey(next)) {
+            frequencyData.get(next).deleteLeader(first);
         }
     }
     
@@ -177,6 +209,14 @@ public class FrequencyMap {
         }
         res.add(word);
         return res;
+    }
+    
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (String word : getSortedWords()) {
+            sb.append(getInfo(word) + "\n");
+        }
+        return sb.toString();
     }
     
 }
