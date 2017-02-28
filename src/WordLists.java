@@ -1,24 +1,20 @@
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class WordLists {
     
-    public static final Set<String> GARBAGE = new HashSet<String>();
-    public static final Set<String> NON_TERMINAL_WORDS = new HashSet<String>();
+    public static final List<String> GARBAGE = new ArrayList<String>();
+    public static final List<String> NON_TERMINAL_WORDS = new ArrayList<String>();
     public static final List<String> TERMINAL_PUNCTUATION = new ArrayList<String>();
     public static final List<String> MIDSENTENCE_PUNCTUATION = new ArrayList<String>();
     public static final List<String> ALL_PUNCTUATION = new ArrayList<String>();
-    public static final Set<String> WORDS_WITH_PERIODS = new HashSet<String>();
+    public static final List<String> WORDS_WITH_PERIODS = new ArrayList<String>();
     
     static {
         String[] garbage = {"000", "&amp", "http", "https", "//t.co/", "\"", ")", "("};
         Collections.addAll(GARBAGE, garbage);
         
-        String[] nonTerminals = {",", "the", "a", "and", "in", "on", "my", "our"};
-        Collections.addAll(NON_TERMINAL_WORDS, nonTerminals);
         
         String[] terminalPunctuation = {".", "!", "?"};
         Collections.addAll(TERMINAL_PUNCTUATION, terminalPunctuation);
@@ -33,6 +29,11 @@ public class WordLists {
         
         ALL_PUNCTUATION.addAll(MIDSENTENCE_PUNCTUATION);
         ALL_PUNCTUATION.addAll(TERMINAL_PUNCTUATION);
+        
+        String[] nonTerminals = {",", "the", "a", "and", "in", "on", "my", 
+                "our", "to", "of", "for", "with"};
+        Collections.addAll(NON_TERMINAL_WORDS, nonTerminals);
+        NON_TERMINAL_WORDS.addAll(ALL_PUNCTUATION);
     }
 
 }
