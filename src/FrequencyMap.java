@@ -100,15 +100,19 @@ public class FrequencyMap {
         }
     }
     
-    public List<Pair<String, Integer>> getFollowers(List<String> chain) {
+    public Map<String, Integer> getFollowers(List<String> chain) {
         if (!chainFollowers.containsKey(chain)) {
-            return new ArrayList<Pair<String,Integer>>();
+            return new HashMap<String, Integer>();
         } else {
-            Map<String, Integer> freqMap = chainFollowers.get(chain);
-            return freqMap.keySet().stream()
-                    .map(str -> Pair.get(str, freqMap.get(str)))
-                    .collect(Collectors.toList());
+            return chainFollowers.get(chain);
         }
+    }
+    
+    public List<String> getSortedFollowers(List<String> chain) {
+        Map<String, Integer> map = getFollowers(chain);
+        List<String> res = map.keySet().stream().collect(Collectors.toList());
+        res.sort((s1, s2) -> map.get(s2) - map.get(s2));
+        return res;
     }
     
     public void addWord(String word, int frequency) {
@@ -262,29 +266,24 @@ public class FrequencyMap {
 //        }
 //    }
     
-//    public void load(List<String> phrases) {
-//        Logger.log("Starting frequency analysis on " + phrases.size()
-//                + " tweets...", getClass().getName());
-//        for(String phrase : phrases) {
-//            List<String> words = split(phrase);
-//            if (words.size() == 0) {
-//                continue;
-//            }
-//            addFollower(START, words.get(0));
-//            addWord(words.get(0), 1);
-//            for (int i = 1; i < words.size(); i++) {
-//                addWord(words.get(i), 1);
-//                addFollower(words.get(i-1), words.get(i));
-//            }
-//        }
-//        cleanUpTerminals();
+    public void load(List<String> phrases) {
+        Logger.log("Starting frequency analysis on " + phrases.size()
+                + " tweets...", getClass().getName());
+        for(String rawText : phrases) {
+            List<String> phrase = split(rawText);
+            if (phrase.size() == 0) {
+                continue;
+            }
+            phrase.add(0, START);
+            addPhrase(phrase);
+            
+        }
+        //cleanUpTerminals();
 //        Logger.log("Unique words:\t" + frequencyData.keySet().size(), 
 //                getClass().getName());
 //        Logger.log("Most common:\t" + getSortedWords().subList(0, 25), 
 //                getClass().getName());
-//       
-//        
-//    }
+    }
     
 //    private void cleanUpTerminals() {
 //        for (String nonTerm : WordLists.NON_TERMINAL_WORDS) {

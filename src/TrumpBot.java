@@ -8,7 +8,7 @@ public class TrumpBot {
         TweetParser tp = new TweetParser();
 //        tp.load("realdonaldtrump.csv");
         tp.load("test.csv");
-        FrequencyMap freqMap = new FrequencyMap();
+        FrequencyMap freqMap = new FrequencyMap(3);
         freqMap.load(tp.allTweets());
         System.out.println(freqMap);
         

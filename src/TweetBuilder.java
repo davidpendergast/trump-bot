@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -26,7 +27,7 @@ public class TweetBuilder {
                 + CHAR_LOWER_LIMIT;
         
         while (res.length() < CHAR_LIMIT) {
-            List<String> followers = freqMap.getFollowers(currentWord);
+            List<String> followers = freqMap.getSortedFollowers(Arrays.asList(currentWord));
             if (followers.isEmpty()) {
                 break;
             } else if (res.length() > CHAR_LIMIT - 15) {
