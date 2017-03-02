@@ -10,6 +10,10 @@ public class Pair<X,Y> {
         this.y = y;
     }
     
+    public static <X,Y> Pair<X,Y> get(X x, Y y) {
+        return new Pair<X,Y>(x,y);
+    }
+    
     public String toString() {
         return "(" + x + ", " + y + ")";
     }
