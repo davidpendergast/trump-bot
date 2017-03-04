@@ -6,14 +6,14 @@ public class TrumpBot {
     
     public static void main(String[] args) {
         TweetParser tp = new TweetParser();
-//        tp.load("realdonaldtrump.csv");
-        tp.load("test.csv");
+        tp.load("realdonaldtrump.csv");
+//        tp.load("test.csv");
         FrequencyMap freqMap = new FrequencyMap(3);
         freqMap.load(tp.allTweets());
-        System.out.println(freqMap);
+//        System.out.println(freqMap);
         
         TweetBuilder builder = new TweetBuilder(freqMap);
-        System.out.println(builder.getTweet());
+        System.out.println(builder.getTweet(3));
         
 //        List<String> tweets = builder.getTweets(1000);
 //        try{

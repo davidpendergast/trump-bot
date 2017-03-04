@@ -1,12 +1,15 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public class TweetBuilder {
     
     public static final int CHAR_MAX_LIMIT = 140;
+    public static final int CHAR_SOFT_MAX_LIMIT = CHAR_MAX_LIMIT - 20;
     public static final int CHAR_LOWER_LIMIT = 50;
     private FrequencyMap freqMap;
     private Random rand;
@@ -20,48 +23,112 @@ public class TweetBuilder {
         this(freqMap, System.currentTimeMillis());
     }
     
-    public String getTweet() {
-        StringBuilder res = new StringBuilder();
-        String currentWord = FrequencyMap.START;
-        int CHAR_LIMIT = rand.nextInt(CHAR_MAX_LIMIT - CHAR_LOWER_LIMIT) 
+    private static int min(int ... values) {
+        int min = values[0];
+        for (int i = 1; i < values.length; i++) {
+            if (min > values[i]) {
+                min = values[i];
+            }
+        }
+        return min;
+    }
+    
+    public static class TweetInfo {
+        public int charLength = 0;
+        public int targetLength = 0;
+        public int wordLength = 0;
+        public String tweet = null;
+        public List<String> words = null;
+        public List<Integer> numChoices = null;
+        public List<Integer> depthsUsed = null;
+    }
+    
+    public String combineWords(List<String> words) {
+        if (words.size() == 0) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        
+        for (int i = 0; i < words.size(); i++) {
+            String word = words.get(i);
+            if (i == 0) {
+                if (word.startsWith("@")) {
+                    sb.append("." + word); //magic twitter dot
+                } else {
+                    sb.append(word);
+                }
+                
+            } else {
+                String prev = words.get(i-1);
+                if (WordLists.NO_SURROUNDING_SPACES_PUNCTUATION.contains(prev) 
+                        || WordLists.ALL_PUNCTUATION.contains(word)) {
+                    sb.append(word);
+                } else {
+                    sb.append(" " + word);
+                }
+            }
+        }
+        return sb.toString();
+    }
+    
+    public String getTweet(int depth) {
+        List<String> tweet = new ArrayList<String>();
+        List<String> memory = new ArrayList<String>();
+        memory.add(FrequencyMap.START);
+        
+        // starts trying to finish sentence after this point
+        int softCharLimit = rand.nextInt(CHAR_SOFT_MAX_LIMIT - CHAR_LOWER_LIMIT) 
                 + CHAR_LOWER_LIMIT;
         
-        while (res.length() < CHAR_LIMIT) {
-            List<String> followers = freqMap.getSortedFollowers(Arrays.asList(currentWord));
+        while (true) {
+            int maxDepth = min(depth, freqMap.getDepth(), memory.size());
+            int start = rand.nextInt(maxDepth);
+            List<String> memSublist = memory.subList(start, memory.size());
+            Set<String> followerSet = freqMap.getFollowers(memSublist).keySet();
+            
+            int lengthNow = combineWords(tweet).length();
+            
+            List<String> followers = new ArrayList<String>(followerSet);
             if (followers.isEmpty()) {
-                break;
-            } else if (res.length() > CHAR_LIMIT - 15) {
+                System.out.println("No followers, reducing depth");
+                memSublist = memory.subList(memory.size()-1, memory.size());
+                followers.addAll(freqMap.getFollowers(memSublist).keySet());
+                if (followers.isEmpty()) {
+                    System.out.println("No followers at all, just quitting.");
+                    break;
+                }
+            } 
+            
+            if (lengthNow > softCharLimit) {
                 String end = getTerminalPunctuation(followers);
                 if (end != null) {
-                    res.append(end);
+                    tweet.add(end);
+                    System.out.println("Ended gracefully!");
                     break;
+                } else {
+                    softCharLimit += 10;
                 }
             }
             
             Collections.shuffle(followers, rand);
             String choice = followers.get(0);
             
-            String addition = "";
-            if (res.length() == 0 && choice.length() > 0 
-                    && choice.charAt(0) == '@') {
-                res.append(".");    // add magic twitter dot
-            } else if (res.length() > 0 && !WordLists.ALL_PUNCTUATION.contains(choice)) {
-                addition = " ";
-            }
-            
-            addition = addition + choice;
-            if (res.length() + addition.length() <= CHAR_LIMIT) {
-                res.append(addition);
+            if (lengthNow + choice.length() + 1 <= CHAR_MAX_LIMIT) {
+                tweet.add(choice);
             } else {
-                return res.toString();
+                break;
             }
-            currentWord = choice;
-            
+            memory.add(choice);
+            if (memory.size() > depth) {
+                memory.remove(0);
+            }  
         }
-        return res.toString();
+        
+        return combineWords(tweet);
     }
     
     private String getTerminalPunctuation(List<String> followers) {
+        Collections.shuffle(followers, rand);
         for (String x : followers) {
             if (WordLists.TERMINAL_PUNCTUATION.contains(x)) {
                 return x;
@@ -70,17 +137,17 @@ public class TweetBuilder {
         return null;
     }
     
-    public List<String> getTweets(int n) {
+    public List<String> getTweets(int n, int depth) {
         List<String> result = new ArrayList<String>();
         Logger.log("Creating "+n+" tweets...\n ", getClass().getName());
         for (int i = 0; i < n; i++) {
-            String tweet = getTweet();
+            String tweet = getTweet(depth);
             if (i < 10 || n < 20) {
                 Logger.log(tweet, getClass().getName());
             } else if (i == 10) {
                 Logger.log("<creating "+(n-10)+" more...>", getClass().getName());
             }
-            result.add(getTweet());
+            result.add(tweet);
         }
         Logger.log("\ndone.", getClass().getName());
         return result;
