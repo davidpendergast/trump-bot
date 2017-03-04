@@ -125,147 +125,6 @@ public class FrequencyMap {
         }
     }
     
-//    private static class WordInfo {
-//        // info about the word itself
-//        public String word;
-//        public int frequency = 0;
-//        
-//        // info about followers
-//        public Map<String,Integer> followedByCount = new HashMap<String,Integer>();
-//        public Set<String> leaders = new HashSet<String>();
-//        
-//        public WordInfo(String word) {
-//            this.word = word;
-//        }
-//        
-//        public void addFollower(String word) {
-//            if (followedByCount.containsKey(word)) {
-//                int val = followedByCount.get(word);
-//                followedByCount.put(word, val + 1);
-//            } else {
-//                followedByCount.put(word, 1);
-//            }
-//        }
-//        
-//        public boolean deleteFollower(String word) {
-//            return followedByCount.remove(word) != null;
-//        }
-//        
-//        public List<String> getFollowers() {
-//            List<String> res = new ArrayList<String>(followedByCount.keySet());
-//            res.sort((s1, s2) -> followedByCount.get(s1) - followedByCount.get(s2));
-//            return res;
-//        }
-//        
-//        public List<String> getLeaders() {
-//            return new ArrayList<String>(leaders);
-//        }
-//        
-//        public boolean deleteLeader(String word) {
-//            return leaders.remove(word);
-//        }
-//        
-//        public void addLeader(String word) {
-//            leaders.add(word);
-//        }
-//        
-//        public String toString() {
-//            StringBuilder sb = new StringBuilder();
-//            sb.append("("+word+", "+frequency+") : followers=[");
-//            int index = 0;
-//            for (String key : followedByCount.keySet()) {
-//                int count = followedByCount.get(key);
-//                sb.append("(" + key + "->" + count + ")");
-//                index++;
-//                if (index != followedByCount.size()) {
-//                    sb.append(", ");
-//                }
-//                    
-//            }
-//            sb.append("], leaders=[");
-//            index = 0;
-//            for (String leader : leaders) {
-//                sb.append(leader);
-//                index++;
-//                if (index != leaders.size()) {
-//                    sb.append(", ");
-//                }
-//            }
-//            sb.append("]");
-//            return sb.toString();
-//            
-//        }
-//    }
-    
-//    public FrequencyMap() {
-//        frequencyData = new HashMap<String, WordInfo>();
-//    }
-//    
-//    public List<String> getWords() {
-//        return new ArrayList<String>(frequencyData.keySet());
-//    }
-    
-//    public List<String> getSortedWords() {
-//        List<String> words = getWords();
-//        words.sort((w1,w2) -> {
-//            return getFrequency(w2) - getFrequency(w1);
-//        });
-//        return words;
-//    }
-//    
-//    public WordInfo getInfo(String word) {
-//        return frequencyData.get(word);
-//    }
-//    
-//    public int getFrequency(String word) {
-//        if (frequencyData.containsKey(word)) {
-//            return frequencyData.get(word).frequency;
-//        } else {
-//            return 0;
-//        }
-//    }
-    
-//    public List<String> getFollowers(String word) {
-//        if (!frequencyData.containsKey(word)) {
-//            return new ArrayList<String>();
-//        } else {
-//            return frequencyData.get(word).getFollowers();
-//        }
-//    }
-//    
-//    public List<String> getFollowers(List<String> wordSequence) {
-//        int n = wordSequence.size();
-//        if (n == 0) {
-//            
-//        }
-//        List<List<String>> result = new ArrayList<List<String>>();
-//        result.add(getFollowers(wordSequence.get(n-1)));
-//        return result;
-//    }
-//    
-//    private void addWord(String word, int freq) {
-//        if (!frequencyData.containsKey(word)) {
-//            frequencyData.put(word, new WordInfo(word));
-//        } 
-//        frequencyData.get(word).frequency += freq;
-//    }
-//    
-//    private void addFollower(String first, String next) {
-//        addWord(first, 0);
-//        addWord(next, 0);
-//        frequencyData.get(first).addFollower(next);
-//        frequencyData.get(next).addLeader(first);
-//    }
-//    
-//    private void removeFollower(String first, String next) {
-//        if (frequencyData.containsKey(first)) {
-//            frequencyData.get(first).deleteFollower(next);
-//        }
-//        if (frequencyData.containsKey(next)) {
-//            frequencyData.get(next).deleteLeader(first);
-//        }
-//    }
-    
     public void load(List<String> phrases) {
         Logger.log("Starting frequency analysis on " + phrases.size()
                 + " tweets...", getClass().getName());
@@ -278,25 +137,12 @@ public class FrequencyMap {
             addPhrase(phrase);
             
         }
-        //cleanUpTerminals();
-//        Logger.log("Unique words:\t" + frequencyData.keySet().size(), 
-//                getClass().getName());
-//        Logger.log("Most common:\t" + getSortedWords().subList(0, 25), 
-//                getClass().getName());
     }
-    
-//    private void cleanUpTerminals() {
-//        for (String nonTerm : WordLists.NON_TERMINAL_WORDS) {
-//            for (String terminal : WordLists.TERMINAL_PUNCTUATION) {
-//                removeFollower(nonTerm, terminal);
-//            }
-//        }
-//    }
     
     private List<String> split(String phrase) {
         String[] splitterooni = phrase.split(" ");
         ArrayList<String> res = new ArrayList<String>();
-        for (String x : splitterooni) { //why java
+        for (String x : splitterooni) {
             res.addAll(subsplit(x));
         }
         return res;
@@ -348,5 +194,5 @@ public class FrequencyMap {
         System.out.println(map);
         System.out.println(map.getFollowers(Arrays.asList("the", "dog")));
     }
-    
+
 }

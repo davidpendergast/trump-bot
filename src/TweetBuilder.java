@@ -1,7 +1,5 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -33,16 +31,6 @@ public class TweetBuilder {
         return min;
     }
     
-    public static class TweetInfo {
-        public int charLength = 0;
-        public int targetLength = 0;
-        public int wordLength = 0;
-        public String tweet = null;
-        public List<String> words = null;
-        public List<Integer> numChoices = null;
-        public List<Integer> depthsUsed = null;
-    }
-    
     public String combineWords(List<String> words) {
         if (words.size() == 0) {
             return "";
@@ -56,8 +44,7 @@ public class TweetBuilder {
                     sb.append("." + word); //magic twitter dot
                 } else {
                     sb.append(word);
-                }
-                
+                } 
             } else {
                 String prev = words.get(i-1);
                 if (WordLists.NO_SURROUNDING_SPACES_PUNCTUATION.contains(prev) 
@@ -71,7 +58,7 @@ public class TweetBuilder {
         return sb.toString();
     }
     
-    public String getTweet(int depth) {
+    public String getTweet() {
         List<String> tweet = new ArrayList<String>();
         List<String> memory = new ArrayList<String>();
         memory.add(FrequencyMap.START);
@@ -81,20 +68,19 @@ public class TweetBuilder {
                 + CHAR_LOWER_LIMIT;
         
         while (true) {
-            int maxDepth = min(depth, freqMap.getDepth(), memory.size());
-            int start = rand.nextInt(maxDepth);
-            List<String> memSublist = memory.subList(start, memory.size());
+            int maxDepth = min(freqMap.getDepth(), memory.size());
+            
+            int depth = rand.nextInt(maxDepth)+1;
+            List<String> memSublist = memory.subList(memory.size()-depth, memory.size());
             Set<String> followerSet = freqMap.getFollowers(memSublist).keySet();
             
             int lengthNow = combineWords(tweet).length();
             
             List<String> followers = new ArrayList<String>(followerSet);
             if (followers.isEmpty()) {
-                System.out.println("No followers, reducing depth");
                 memSublist = memory.subList(memory.size()-1, memory.size());
                 followers.addAll(freqMap.getFollowers(memSublist).keySet());
                 if (followers.isEmpty()) {
-                    System.out.println("No followers at all, just quitting.");
                     break;
                 }
             } 
@@ -103,7 +89,6 @@ public class TweetBuilder {
                 String end = getTerminalPunctuation(followers);
                 if (end != null) {
                     tweet.add(end);
-                    System.out.println("Ended gracefully!");
                     break;
                 } else {
                     softCharLimit += 10;
@@ -113,7 +98,7 @@ public class TweetBuilder {
             Collections.shuffle(followers, rand);
             String choice = followers.get(0);
             
-            if (lengthNow + choice.length() + 1 <= CHAR_MAX_LIMIT) {
+            if (lengthNow + choice.length() + 1 < CHAR_MAX_LIMIT) {
                 tweet.add(choice);
             } else {
                 break;
@@ -137,11 +122,11 @@ public class TweetBuilder {
         return null;
     }
     
-    public List<String> getTweets(int n, int depth) {
+    public List<String> getTweets(int n) {
         List<String> result = new ArrayList<String>();
         Logger.log("Creating "+n+" tweets...\n ", getClass().getName());
         for (int i = 0; i < n; i++) {
-            String tweet = getTweet(depth);
+            String tweet = getTweet();
             if (i < 10 || n < 20) {
                 Logger.log(tweet, getClass().getName());
             } else if (i == 10) {

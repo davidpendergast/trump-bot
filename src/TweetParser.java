@@ -65,19 +65,10 @@ public class TweetParser {
             e.printStackTrace();
             return;
         }
-        
-        int i = 0;
-        for (String tweet : allTweets) {
-            //System.out.println(i+":\t"+tweet);
-            i++;
-        }
-        
-       
     }
     
     private String[] splitByComma(String csvEntry) {
         if (csvEntry.contains("\"")) {
-            //System.out.println(csvEntry);
             int start = csvEntry.indexOf("\"");
             int end = csvEntry.lastIndexOf('\"');
             String tweet;
@@ -119,10 +110,12 @@ public class TweetParser {
         }
         
         if (!lineData[TWEET_TEXT_IDX].contains(" ")) {
-            // sometimes tweets will just be a single @ mention of someone
+            // Sometimes tweets will just be a single @ mention of someone,
+            // or something equally boring. We can toss these out.
             return false;
         }
         
         return true;
     }
+    
 }
