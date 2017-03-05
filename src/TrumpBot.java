@@ -7,6 +7,7 @@ public class TrumpBot {
     
     public static final String REAL_DT_TWEETS = "realdonaldtrump.csv";
     public static final String TEST_FILE = "test.csv";
+    public static final String LOG_FILE = "output.log";
     
     /**
      * File to retrieve source tweets. 
@@ -16,12 +17,12 @@ public class TrumpBot {
     /**
      * Max depth of Markov chains used.
      */
-    public static int depth = 5;
+    public static int depth = 3;
     
     /**
      * Number of tweets to generate.
      */
-    public static int numToGenerate = 1000;
+    public static int numToGenerate = 10;
     
     public static void main(String[] args) {
         TweetParser tp = new TweetParser();
@@ -44,6 +45,8 @@ public class TrumpBot {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        
+        Logger.dump(LOG_FILE);
     }
     
     public static void checkTooLong(List<String> tweets) {

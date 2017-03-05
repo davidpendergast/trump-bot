@@ -67,12 +67,16 @@ public class TweetBuilder {
         int softCharLimit = rand.nextInt(CHAR_SOFT_MAX_LIMIT - CHAR_LOWER_LIMIT) 
                 + CHAR_LOWER_LIMIT;
         
+        StringBuilder info = new StringBuilder("(softCharLimit="+softCharLimit);
+        List<String> infoPerWord = new ArrayList<String>(); // for logging
+        
         while (true) {
-            int maxDepth = min(freqMap.getDepth(), memory.size());
-            
-            int depth = rand.nextInt(maxDepth)+1;
+            int depth = rand.nextInt(min(freqMap.getDepth(), memory.size()))+1;
+            StringBuilder wordInfo = new StringBuilder("depth=" + depth);
+             
             List<String> memSublist = memory.subList(memory.size()-depth, memory.size());
             Set<String> followerSet = freqMap.getFollowers(memSublist).keySet();
+            wordInfo.append(", choices="+followerSet.size()); 
             
             int lengthNow = combineWords(tweet).length();
             
@@ -80,7 +84,10 @@ public class TweetBuilder {
             if (followers.isEmpty()) {
                 memSublist = memory.subList(memory.size()-1, memory.size());
                 followers.addAll(freqMap.getFollowers(memSublist).keySet());
+                wordInfo.append("->"+followers.size());
                 if (followers.isEmpty()) {
+                    wordInfo.append(", dead_end");
+                    //infoPerWord.add(wordInfo.toString());
                     break;
                 }
             } 
@@ -89,9 +96,12 @@ public class TweetBuilder {
                 String end = getTerminalPunctuation(followers);
                 if (end != null) {
                     tweet.add(end);
+                    wordInfo.append(", graceful_end");
+                    infoPerWord.add(wordInfo.toString());
                     break;
                 } else {
                     softCharLimit += 10;
+                    wordInfo.append(", new_soft_char_lim="+softCharLimit);
                 }
             }
             
@@ -99,16 +109,31 @@ public class TweetBuilder {
             String choice = followers.get(0);
             
             if (lengthNow + choice.length() + 1 < CHAR_MAX_LIMIT) {
+                infoPerWord.add(wordInfo.toString());
                 tweet.add(choice);
             } else {
+                wordInfo.append(", over_140");
+                //infoPerWord.add(wordInfo.toString());
                 break;
             }
             memory.add(choice);
-            if (memory.size() > depth) {
+            if (memory.size() > freqMap.getDepth()) {
                 memory.remove(0);
             }  
         }
-        
+        String result = combineWords(tweet);
+        info.append(", length="+result.length()+", num_words="+tweet.size());
+        info.append(", tweet=\""+result+"\"");
+        info.append(", breakdown=[");
+        assert tweet.size() == infoPerWord.size();
+        for (int i = 0; i < tweet.size(); i++) {
+            info.append(tweet.get(i) + "("+infoPerWord.get(i)+")");
+            if (i < tweet.size()-1) {
+                info.append(" ");
+            }
+        }
+        info.append(")");
+        Logger.log(info.toString(), getClass().getName());
         return combineWords(tweet);
     }
     
@@ -126,13 +151,7 @@ public class TweetBuilder {
         List<String> result = new ArrayList<String>();
         Logger.log("Creating "+n+" tweets...\n ", getClass().getName());
         for (int i = 0; i < n; i++) {
-            String tweet = getTweet();
-            if (i < 10 || n < 20) {
-                Logger.log(tweet, getClass().getName());
-            } else if (i == 10) {
-                Logger.log("<creating "+(n-10)+" more...>", getClass().getName());
-            }
-            result.add(tweet);
+            result.add(getTweet());
         }
         Logger.log("\ndone.", getClass().getName());
         return result;
